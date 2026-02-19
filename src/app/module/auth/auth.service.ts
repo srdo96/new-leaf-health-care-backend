@@ -33,6 +33,7 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
 
         return { ...data, patient };
     } catch (error) {
+        console.error(error);
         await prisma.user
             .delete({
                 where: {
