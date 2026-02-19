@@ -4,8 +4,8 @@ model Patient {
   name          String
   email         String    @unique
   profilePhoto  String?
-  contactNumber String
-  address       String
+  contactNumber String?
+  address       String?
   isDeleted     Boolean   @default(false)
   deletedAt     DateTime?
   createdAt     DateTime  @default(now())
@@ -15,8 +15,6 @@ model Patient {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([isDeleted], name: "idx_patient_isDeleted")
-  @@index([email], name: "idx_patient_email")
-  @@index([contactNumber], name: "idx_patient_contactNumber")
-  @@index([address], name: "idx_patient_address")
+  @@index([email], name: "idx_patient_email") 
   @@map("patients")
 }
