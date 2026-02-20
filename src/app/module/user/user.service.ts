@@ -40,7 +40,7 @@ const createDoctor = async (payload: ICreateDoctorPayload) => {
 
     try {
         const result = await prisma.$transaction(async (tx) => {
-            const doctor = await tx.doctor.create({
+            const createdDoctor = await tx.doctor.create({
                 data: {
                     userId: userData.user.id,
                     ...payload.doctor,
@@ -49,17 +49,18 @@ const createDoctor = async (payload: ICreateDoctorPayload) => {
 
             const doctorSpecialtiesData = specialties.map((specialty) => {
                 return {
-                    doctorId: doctor.id,
+                    doctorId: createdDoctor.id,
                     specialtyId: specialty.id,
                 };
             });
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const doctorSpecialties = await tx.doctorSpecialty.createMany({
                 data: doctorSpecialtiesData,
             });
 
-            const doctor = await tx.doctor.findUnique({
-                where: { id: doctor.id },
+            const doctor = await tx.doctor.findUniqueOrThrow({
+                where: { id: createdDoctor.id },
                 select: {
                     id: true,
                     name: true,
