@@ -2,7 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import status from "http-status";
-import { env } from "../../config/env";
+import z from "zod";
+import { env } from "../config/env";
+import { handleZodError } from "../errorHelpers/handleZodError";
+import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 
 export const globalErrorHandler = (
     err: any,
@@ -14,12 +17,23 @@ export const globalErrorHandler = (
         console.log("globalErrorHandler --> error:", err);
     }
 
-    const statusCode = status.INTERNAL_SERVER_ERROR;
-    const message = "Internal Server Error";
+    const errorSources: TErrorSources[] = [];
+    let statusCode: number = status.INTERNAL_SERVER_ERROR;
+    let message = "Internal Server Error";
 
-    res.status(statusCode).json({
+    if (err instanceof z.ZodError) {
+        const zodError = handleZodError(err);
+        errorSources.push(...zodError.errorSources);
+        statusCode = zodError.statusCode;
+        message = zodError.message;
+    }
+
+    const errorResponse: TErrorResponse = {
         success: false,
         message,
-        error: err.message,
-    });
+        errorSources,
+        error: env.NODE_ENV === "development" ? err.message : undefined,
+    };
+
+    res.status(statusCode).json(errorResponse);
 };
