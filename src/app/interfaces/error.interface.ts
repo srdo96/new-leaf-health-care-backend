@@ -8,4 +8,5 @@ export interface TErrorResponse {
     message: string;
     errorSources: TErrorSources[];
     error?: unknown;
+    stack?: string;
 }
