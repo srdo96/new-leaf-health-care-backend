@@ -1,5 +1,7 @@
 import { Status } from "../../../generated/prisma/enums";
 import { auth } from "../../lib/auth";
+import { prisma } from "../../lib/prisma";
+import { tokenUtils } from "../../utils/token";
 
 interface IRegisterPatientPayload {
     name: string;
@@ -18,7 +20,30 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
         throw new Error("Failed to register patient");
     }
 
-    return data;
+    //** If Patient is not created, then delete the user account */
+    //** This is to prevent the user from being created without a patient */
+
+    try {
+        const patient = await prisma.patient.create({
+            data: {
+                userId: data.user.id,
+                name,
+                email,
+            },
+        });
+
+        return { ...data, patient };
+    } catch (error) {
+        console.error(error);
+        await prisma.user
+            .delete({
+                where: {
+                    id: data.user.id,
+                },
+            })
+            .catch(() => null);
+        throw error;
+    }
 };
 
 interface ILoginPatientPayload {
@@ -44,7 +69,25 @@ const loginUser = async (payload: ILoginPatientPayload) => {
         throw new Error("User is not found or deleted");
     }
 
-    return data;
+    const accessToken = tokenUtils.getAccessToken({
+        userId: data.user.id,
+        email: data.user.email,
+        role: data.user.role,
+        status: data.user.status,
+        isDeleted: data.user.isDeleted,
+        emailVerified: data.user.emailVerified,
+    });
+
+    const refreshToken = tokenUtils.getRefreshToken({
+        userId: data.user.id,
+        email: data.user.email,
+        role: data.user.role,
+        status: data.user.status,
+        isDeleted: data.user.isDeleted,
+        emailVerified: data.user.emailVerified,
+    });
+
+    return { ...data, accessToken, refreshToken };
 };
 
 export const authService = {

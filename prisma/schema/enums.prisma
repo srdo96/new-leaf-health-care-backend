@@ -10,3 +10,9 @@ enum Status {
   BLOCKED
   DELETED
 }
+
+enum Gender {
+  MALE
+  FEMALE
+  HIJRAH
+}
