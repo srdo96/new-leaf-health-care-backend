@@ -31,8 +31,24 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
                 email,
             },
         });
+        const accessToken = tokenUtils.getAccessToken({
+            userId: data.user.id,
+            email: data.user.email,
+            role: data.user.role,
+            status: data.user.status,
+            isDeleted: data.user.isDeleted,
+            emailVerified: data.user.emailVerified,
+        });
 
-        return { ...data, patient };
+        const refreshToken = tokenUtils.getRefreshToken({
+            userId: data.user.id,
+            email: data.user.email,
+            role: data.user.role,
+            status: data.user.status,
+            isDeleted: data.user.isDeleted,
+            emailVerified: data.user.emailVerified,
+        });
+        return { ...data, patient, accessToken, refreshToken };
     } catch (error) {
         console.error(error);
         await prisma.user

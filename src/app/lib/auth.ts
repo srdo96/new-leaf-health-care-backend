@@ -4,6 +4,7 @@ import { Role, Status } from "../../generated/prisma/enums";
 import { env } from "../config/env";
 import { prisma } from "./prisma";
 
+const MAX_AGE = 60 * 60 * 60 * 24; // 1 day
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
@@ -37,6 +38,15 @@ export const auth = betterAuth({
                 required: false,
                 defaultValue: null,
             },
+        },
+    },
+
+    session: {
+        expiresIn: MAX_AGE,
+        updateAge: MAX_AGE,
+        cookieCache: {
+            enabled: true,
+            maxAge: MAX_AGE, // 1 day
         },
     },
 
