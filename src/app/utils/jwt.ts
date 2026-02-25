@@ -15,7 +15,7 @@ const verifyToken = (token: string, secret: string) => {
         return {
             success: true,
             message: "Token verified successfully",
-            data: decoded,
+            data: decoded as JwtPayload,
         };
     } catch (error: any) {
         return {
