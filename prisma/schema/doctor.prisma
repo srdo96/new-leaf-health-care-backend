@@ -1,28 +1,36 @@
 model Doctor {
   id String @id @default(uuid(7))
 
-  name                String
-  email               String    @unique
-  profilePhoto        String?
-  contactNumber       String?
-  address             String?
-  isDeleted           Boolean   @default(false)
-  deletedAt           DateTime?
+  name          String
+  email         String    @unique
+  profilePhoto  String?
+  contactNumber String?
+  address       String?
+  isDeleted     Boolean   @default(false)
+  deletedAt     DateTime?
+
+  registrationNumber  String @unique
+  experience          Int    @default(0)
   gender              Gender
-  registrationNumber  String?   @unique
-  experience          Int       @default(0)
   appointmentFee      Float
-  qualification       String?
-  currentWorkingPlace String?
-  designation         String?
-  averageRating       Float     @default(0.0)
+  qualification       String
+  currentWorkingPlace String
+  designation         String
+  averageRating       Float  @default(0.0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId            String            @unique
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  specialties DoctorSpecialty[]
+  //relations
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  specialties     DoctorSpecialty[]
+  appointments    Appointment[]
+  prescriptions   Prescription[]
+  reviews         Review[]
+  doctorSchedules DoctorSchedules[]
 
   @@index([isDeleted], name: "idx_doctor_isDeleted")
   @@index([email], name: "idx_doctor_email")

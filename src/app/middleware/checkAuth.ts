@@ -82,6 +82,13 @@ export const checkAuth =
                             "Forbidden! User is not authorized",
                         );
                     }
+                    req.user = {
+                        userId: user.id,
+                        role: user.role,
+                        email: user.email,
+                        status: user.status,
+                    };
+
                     return next();
                 }
             }
